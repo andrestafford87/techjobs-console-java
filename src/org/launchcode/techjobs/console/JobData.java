@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by LaunchCode
@@ -54,6 +55,37 @@ public class JobData {
         return allJobs;
     }
 
+    public static ArrayList<HashMap<String, String>> findByValue(String input) {
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        // for each individual job...
+        for (HashMap<String, String> record : allJobs) {
+            // for each field in an individual job..
+            for (String field : record.keySet()) {
+                // get the value associated with that field.
+                String value = record.get(field).toLowerCase();
+
+                // if the search term is in the field's value
+                // add it to the returned arraylist.
+                if (value.contains(input.toLowerCase())) {
+                    jobs.add(record);
+                }
+            }
+        }
+
+        // fancy deduplication with streaming
+        List<HashMap<String, String>> dedup = jobs.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        // convert the list to an arraylist
+        jobs = new ArrayList<HashMap<String, String>>(dedup);
+
+        return jobs;
+    }
+
     /**
      * Returns results of search the jobs data by key/value, using
      * inclusion of the search term.
@@ -74,9 +106,9 @@ public class JobData {
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column).toLowerCase();
 
-            if (aValue.contains(value)) {
+            if (aValue.contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
